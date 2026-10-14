@@ -1,28 +1,47 @@
 package org.firstinspires.ftc.teamcode.code.opmodes.tests;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.code.parts.Intake;
+import org.firstinspires.ftc.teamcode.system.BasicHolonomicDrivetrain;
 
 @Config
 @TeleOp(name="Intake Test", group="TeleOp")
 
 public class IntakeTest extends OpMode {
-    Intake intake;
+    private BasicHolonomicDrivetrain driveTrain;
+    public static double driveVelocity = 2800;
 
+    private Intake intake;
     public static double intakeVelocity = 0;
+
 
 
     @Override
     public void init() {
+        driveTrain = new BasicHolonomicDrivetrain(
+                hardwareMap.get(DcMotorEx.class, "backLeft"),
+                hardwareMap.get(DcMotorEx.class, "backRight"),
+                hardwareMap.get(DcMotorEx.class, "frontLeft"),
+                hardwareMap.get(DcMotorEx.class, "frontRight")
+        );
+
         intake = new Intake(hardwareMap.get(DcMotorEx.class, "intake"));
-        //nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"));
+
+
     }
 
     @Override
     public void loop() {
+        driveTrain.setVelocityDrive(
+                -gamepad1.left_stick_y * driveVelocity,
+                -gamepad1.left_stick_x * driveVelocity,
+                -gamepad1.right_stick_x * driveVelocity);
+        driveTrain.drive();
+
         if (gamepad1.yWasPressed()) {
             intakeVelocity = 300;
         } else if (gamepad1.aWasPressed()) {

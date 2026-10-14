@@ -12,6 +12,7 @@ public class Shooter {
         this.shooterMotor = shooterMotor;
 
         this.shooterMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        this.shooterMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     }
 
     public void setShooterVelocity(double velocity) {
