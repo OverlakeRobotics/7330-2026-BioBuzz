@@ -25,6 +25,6 @@ public class Shooter {
     }
 
     public double getShooterPower() {
-        return shooterMotor.getPower();
+        return shooterMotor.getPower(); //test
     }
 }
