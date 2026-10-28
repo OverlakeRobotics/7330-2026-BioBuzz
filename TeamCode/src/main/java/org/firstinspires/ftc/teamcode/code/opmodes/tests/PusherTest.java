@@ -1,0 +1,26 @@
+package org.firstinspires.ftc.teamcode.code.opmodes.tests;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.code.parts.Pusher;
+
+@TeleOp(name = "Pusher Test", group = "TeleOp")
+public class PusherTest extends OpMode {
+    private Pusher pusher;
+    public static double HOME_DEGREES = -65.0;
+    public static double PUSH_DEGREES = 5.0;
+    public static double TRAVEL_MS = 200.0;
+
+    @Override
+    public void init() {
+        Servo servo = hardwareMap.get(Servo.class, "pusher");
+        pusher = new Pusher(servo, HOME_DEGREES, PUSH_DEGREES, TRAVEL_MS);
+    }
+
+    @Override
+    public void loop() {
+        pusher.update(gamepad1.b);
+    }
+}
