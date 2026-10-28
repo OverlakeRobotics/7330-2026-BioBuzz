@@ -4,8 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 public class Shooter {
-    public final double MAX_VELOCITY = 2000;
-
+    public final double MAX_VELOCITY = 1000;
     private final DcMotorEx shooterMotor;
 
     public Shooter (DcMotorEx shooterMotor) {
@@ -25,6 +24,6 @@ public class Shooter {
     }
 
     public double getShooterPower() {
-        return shooterMotor.getPower(); //test
+        return shooterMotor.getPower();
     }
 }

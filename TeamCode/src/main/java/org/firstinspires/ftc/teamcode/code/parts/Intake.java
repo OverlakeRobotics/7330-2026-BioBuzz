@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.code.parts;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class Intake {
@@ -8,11 +9,12 @@ public class Intake {
     public Intake(DcMotorEx intakeMotor) {
         this.intakeMotor = intakeMotor;
 
-        this.intakeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        this.intakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         this.intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
 
-    public void setIntakeVelocity(double velocity) {
-        intakeMotor.setVelocity(velocity);
+    public void setIntakePower(double power) {
+        power = Math.max(-1.0, Math.min(1.0, power));
+        intakeMotor.setPower(power);
     }
 }
