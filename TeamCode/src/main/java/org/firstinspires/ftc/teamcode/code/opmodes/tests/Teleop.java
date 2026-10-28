@@ -81,10 +81,10 @@ public class Teleop extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private static final boolean USE_CAMERA = true;
-    private DcMotorEx leftFront = null;
-    private DcMotorEx leftBack= null;
-    private DcMotorEx rightFront = null;
-    private DcMotorEx rightBack = null;
+    private DcMotorEx frontLeft = null;
+    private DcMotorEx backLeft= null;
+    private DcMotorEx frontRight = null;
+    private DcMotorEx backRight = null;
 
     private AprilTagProcessor aprilTag = null;
     private VisionPortal visionPortal = null;
@@ -97,10 +97,10 @@ public class Teleop extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftBack= hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        backLeft= hardwareMap.get(DcMotorEx.class, "backLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -112,19 +112,19 @@ public class Teleop extends LinearOpMode {
         // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
         // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
         //initVision();
 
 
 
 
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -188,10 +188,10 @@ public class Teleop extends LinearOpMode {
                 backRightPower *= 0.5;
             }
 
-            leftFront.setPower(frontLeftPower);
-            rightFront.setPower(frontRightPower);
-            leftBack.setPower(backLeftPower);
-            rightBack.setPower(backRightPower);
+            frontLeft.setPower(frontLeftPower);
+            frontRight.setPower(frontRightPower);
+            backLeft.setPower(backLeftPower);
+            backRight.setPower(backRightPower);
 
 
             double average_power = (Math.abs(backLeftPower) + Math.abs(frontLeftPower) + Math.abs(backRightPower) + Math.abs(frontRightPower)) / 4.0;
@@ -212,72 +212,72 @@ public class Teleop extends LinearOpMode {
             frontRightPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
             backRightPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
-            List <AprilTagDetection> currentDetections = aprilTag.getDetections();
-            boolean targetFound = false;
-            for (AprilTagDetection detection : currentDetections) {
-                if (detection.ftcPose != null) {
-                    targetFound = true;
-                    double currentDistance = detection.ftcPose.range;
-                    if (currentDistance <=30) {
-                        aprilTag.setDecimation(3);
-                    }
-                    else if (currentDistance>30 && currentDistance<=65) {
-                        aprilTag.setDecimation(2);
-                    }
-                    else{
-                        aprilTag.setDecimation(1);
-                    }
-                }
-                if (!targetFound) {
-                    aprilTag.setDecimation(1);
-                    telemetry.addData("Status: ","Searching for tags...");
-                }
-            }
-
-
-
-            visionTelemetry();
-
-            telemetry.update();
-
-        }
-        visionPortal.close();
-    }
-    private void visionTelemetry () {
-
-        List<AprilTagDetection> detections = aprilTag.getDetections();
-
-        for (AprilTagDetection detection : detections) {
-            if (detection instanceof AprilTagSingleDetection) {
-                AprilTagSingleDetection singleDet = (AprilTagSingleDetection) detection;
-                telemetry.addData("ID: ", singleDet.id);
-            }
-
-
-            if (detection.ftcPose!= null) {
-                telemetry.addData("X-axis: ", detection.ftcPose.x);
-                telemetry.addData("Y-axis: ", detection.ftcPose.y);
-                telemetry.addData("Yaw: ", detection.ftcPose.yaw);
-            }
-        }
-
-    }
-
-    private void initVision () {
-        aprilTag = new AprilTagProcessor.Builder().build();
-        if (USE_CAMERA) {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .addProcessor(aprilTag)
-                    .enableLiveView(true)
-                    .build();
-        }
-        else {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(BuiltinCameraDirection.BACK)
-                    .enableLiveView(true)
-                    .addProcessor(aprilTag)
-                    .build();
+//            List <AprilTagDetection> currentDetections = aprilTag.getDetections();
+//            boolean targetFound = false;
+//            for (AprilTagDetection detection : currentDetections) {
+//                if (detection.ftcPose != null) {
+//                    targetFound = true;
+//                    double currentDistance = detection.ftcPose.range;
+//                    if (currentDistance <=30) {
+//                        aprilTag.setDecimation(3);
+//                    }
+//                    else if (currentDistance>30 && currentDistance<=65) {
+//                        aprilTag.setDecimation(2);
+//                    }
+//                    else{
+//                        aprilTag.setDecimation(1);
+//                    }
+//                }
+//                if (!targetFound) {
+//                    aprilTag.setDecimation(1);
+//                    telemetry.addData("Status: ","Searching for tags...");
+//                }
+//            }
+//
+//
+//
+//            visionTelemetry();
+//
+//            telemetry.update();
+//
+//        }
+//        visionPortal.close();
+//    }
+//    private void visionTelemetry () {
+//
+//        List<AprilTagDetection> detections = aprilTag.getDetections();
+//
+//        for (AprilTagDetection detection : detections) {
+//            if (detection instanceof AprilTagSingleDetection) {
+//                AprilTagSingleDetection singleDet = (AprilTagSingleDetection) detection;
+//                telemetry.addData("ID: ", singleDet.id);
+//            }
+//
+//
+//            if (detection.ftcPose!= null) {
+//                telemetry.addData("X-axis: ", detection.ftcPose.x);
+//                telemetry.addData("Y-axis: ", detection.ftcPose.y);
+//                telemetry.addData("Yaw: ", detection.ftcPose.yaw);
+//            }
+//        }
+//
+//    }
+//
+//    private void initVision () {
+//        aprilTag = new AprilTagProcessor.Builder().build();
+//        if (USE_CAMERA) {
+//            visionPortal = new VisionPortal.Builder()
+//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+//                    .addProcessor(aprilTag)
+//                    .enableLiveView(true)
+//                    .build();
+//        }
+//        else {
+//            visionPortal = new VisionPortal.Builder()
+//                    .setCamera(BuiltinCameraDirection.BACK)
+//                    .enableLiveView(true)
+//                    .addProcessor(aprilTag)
+//                    .build();
         }
     }
 

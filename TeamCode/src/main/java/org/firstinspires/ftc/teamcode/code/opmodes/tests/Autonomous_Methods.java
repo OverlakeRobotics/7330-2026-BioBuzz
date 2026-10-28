@@ -39,16 +39,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
-
-import java.util.List;
 
 
 
@@ -85,6 +79,8 @@ public class Autonomous_Methods extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private static final boolean USE_CAMERA = true;
+
+
     private DcMotorEx frontLeft = null;
     private DcMotorEx backLeft = null;
     private DcMotorEx frontRight = null;
@@ -107,7 +103,7 @@ public class Autonomous_Methods extends LinearOpMode {
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
-        initVision();
+        //initVision();
 
         /*
         // ########################################################################################
@@ -133,12 +129,20 @@ public class Autonomous_Methods extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 //Velocity must be between 1000 to 3000. Anything outside this parameter will be either too fast or slow.
         waitForStart();
+        resetEncode();
 
-        sleep(2000);
+        drive(500,1000);
+        IMUTurn(40);
+        strafe(300,1000);
+        diagonal_strafe(200,9);
+
+
+
         resetEncode();
     }
 
     private void drive(double centimeters, double velocity) {
+
         centimeters = ticks_to_cm(centimeters);
         resetEncode();
         while (opModeIsActive()) {
@@ -146,8 +150,11 @@ public class Autonomous_Methods extends LinearOpMode {
             double averageVelocity = (Math.abs(backLeft.getVelocity()) + Math.abs(frontLeft.getVelocity()) + Math.abs(backRight.getVelocity()) + Math.abs(frontRight.getVelocity())) / 4.0;
             double progress = Math.abs(average) / Math.abs(centimeters);
             if (Math.abs(progress) >= 1.02) {
+
                 break;
             }
+
+
             double yawCorrection = -getYaw() * 0.01;
             double current_velocity = velocity;
             if (Math.abs(progress) > 0.8) {
@@ -214,6 +221,7 @@ public class Autonomous_Methods extends LinearOpMode {
             );
             idle();
         }
+
         resetEncode();
 
     }
@@ -278,6 +286,7 @@ public class Autonomous_Methods extends LinearOpMode {
 
             idle();
         }
+
         resetEncode();
     }
 
@@ -288,7 +297,7 @@ public class Autonomous_Methods extends LinearOpMode {
         double error = angleError(angles, yaw);
         //Decrease to reduce speed. Originally was at a value of 200.
         double p = 50;
-        while (Math.abs(error) >= 1) {
+        while (Math.abs(error) >= 1 ) {
             double minimum_power = 0.02;
             double averageVelocity = (Math.abs(backLeft.getVelocity()) + Math.abs(frontLeft.getVelocity()) + Math.abs(backRight.getVelocity()) + Math.abs(frontRight.getVelocity())) / 4.0;
             orientation = imu.getRobotYawPitchRollAngles();
@@ -310,6 +319,8 @@ public class Autonomous_Methods extends LinearOpMode {
             );
             idle();
         }
+
+
         resetEncode();
     }
 
@@ -372,6 +383,7 @@ public class Autonomous_Methods extends LinearOpMode {
         frontRight.setVelocity(power);
     }
 
+
     private double ticks_to_cm(double ticks) {
         double conversion_rate = 16.4541725781;
         return ticks * conversion_rate;
@@ -382,42 +394,42 @@ public class Autonomous_Methods extends LinearOpMode {
         double conversion_rate = 16.4541725781;
         return cm / conversion_rate;
     }
-    private void vision () {
-
-        List<AprilTagDetection> detections = aprilTag.getDetections();
-
-        for (AprilTagDetection detection : detections) {
-            if (detection instanceof AprilTagSingleDetection) {
-                AprilTagSingleDetection singleDet= (AprilTagSingleDetection) detection;
-                telemetry.addData("ID: ", singleDet.id);
-            }
-
-
-            if (detection.ftcPose!= null) {
-                telemetry.addData("X-axis: ", detection.ftcPose.x);
-                telemetry.addData("Y-axis: ", detection.ftcPose.y);
-                telemetry.addData("Yaw: ", detection.ftcPose.yaw);
-
-
-            }
-        }
-    }
-    private void initVision () {
-        aprilTag = new AprilTagProcessor.Builder().build();
-        if (USE_CAMERA) {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .addProcessor(aprilTag)
-                    .enableLiveView(true)
-                    .build();
-        }
-        else {
-            visionPortal = new VisionPortal.Builder()
-                    .setCamera(BuiltinCameraDirection.BACK)
-                    .addProcessor(aprilTag)
-                    .build();
-        }
-    }
+//    private void vision () {
+//
+//        List<AprilTagDetection> detections = aprilTag.getDetections();
+//
+//        for (AprilTagDetection detection : detections) {
+//            if (detection instanceof AprilTagSingleDetection) {
+//                AprilTagSingleDetection singleDet= (AprilTagSingleDetection) detection;
+//                telemetry.addData("ID: ", singleDet.id);
+//            }
+//
+//
+//            if (detection.ftcPose!= null) {
+//                telemetry.addData("X-axis: ", detection.ftcPose.x);
+//                telemetry.addData("Y-axis: ", detection.ftcPose.y);
+//                telemetry.addData("Yaw: ", detection.ftcPose.yaw);
+//
+//
+//            }
+//        }
+//    }
+//    private void initVision () {
+//        aprilTag = new AprilTagProcessor.Builder().build();
+//        if (USE_CAMERA) {
+//            visionPortal = new VisionPortal.Builder()
+//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+//                    .addProcessor(aprilTag)
+//                    .enableLiveView(true)
+//                    .build();
+//        }
+//        else {
+//            visionPortal = new VisionPortal.Builder()
+//                    .setCamera(BuiltinCameraDirection.BACK)
+//                    .addProcessor(aprilTag)
+//                    .build();
+//        }
+ //   }
 }
 
 
