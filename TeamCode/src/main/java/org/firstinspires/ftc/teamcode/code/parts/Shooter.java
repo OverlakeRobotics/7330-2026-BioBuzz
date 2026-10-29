@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.code.parts;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
@@ -10,7 +11,7 @@ public class Shooter {
     public Shooter (DcMotorEx shooterMotor) {
         this.shooterMotor = shooterMotor;
 
-        this.shooterMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        this.shooterMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         this.shooterMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     }
 
@@ -23,7 +24,16 @@ public class Shooter {
         return shooterMotor.getVelocity();
     }
 
+    public void setShooterPower(double power) {
+        double clamped = Range.clip(power, -1.0, 1.0);
+        this.shooterMotor.setPower(clamped);
+    }
+
     public double getShooterPower() {
         return shooterMotor.getPower();
+    }
+
+    public double getCurrentPosition() {
+        return shooterMotor.getCurrentPosition();
     }
 }

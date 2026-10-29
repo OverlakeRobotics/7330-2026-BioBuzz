@@ -5,13 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.code.parts.Pusher;
-import org.firstinspires.ftc.teamcode.code.parts.Shooter;
+import org.firstinspires.ftc.teamcode.code.parts.*;
 import org.firstinspires.ftc.teamcode.system.BasicHolonomicDrivetrain;
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 @Config
@@ -26,13 +22,11 @@ public class ShooterTest extends OpMode {
 
     public static double shooterVelocity = 0;
     public static double TICKS_PER_SEC = (double) 28 /60;
+    public static double shooterPower = 0;
 
-    private Pusher pusher;
 
     @Override
     public void init() {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
         driveTrain = new BasicHolonomicDrivetrain(
                 hardwareMap.get(DcMotorEx.class, "backLeft"),
                 hardwareMap.get(DcMotorEx.class, "backRight"),
@@ -43,9 +37,6 @@ public class ShooterTest extends OpMode {
         pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"));
         //nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"));
 
-        Servo servo = hardwareMap.get(Servo.class, "pusher");
-        servo.setPosition(50.0 / 300.0); // -100°
-        pusher = new Pusher(servo, -45.0, 0.0, 250.0);
     }
 
     @Override
@@ -57,20 +48,30 @@ public class ShooterTest extends OpMode {
         driveTrain.drive();
 
         if (gamepad1.yWasPressed()) {
-            shooterVelocity = 3000 * TICKS_PER_SEC;
+            shooterVelocity = 200 * TICKS_PER_SEC;
         } else if (gamepad1.xWasPressed()) {
             shooterVelocity = 0;
         } else if (gamepad1.leftBumperWasPressed()) {
-            shooterVelocity -= 250 * TICKS_PER_SEC;
+            shooterVelocity -= 50 * TICKS_PER_SEC;
         } else if (gamepad1.rightBumperWasPressed()) {
-            shooterVelocity += 250 * TICKS_PER_SEC;
+            shooterVelocity += 50 * TICKS_PER_SEC;
+        } else if (gamepad1.bWasPressed()) {
+            shooterPower = 0.25;
+        } else if (gamepad1.aWasPressed()) {
+            shooterPower = 0.0;
+        } else if (gamepad1.rightTriggerWasPressed()) {
+            shooterPower += 0.1;
+        } else if (gamepad1.leftTriggerWasPressed()) {
+            shooterPower -= 0.1;
         }
-        pusher.update(gamepad1.b);
 
-        pollenShooter.setShooterVelocity(shooterVelocity);
+        //pollenShooter.setShooterVelocity(shooterVelocity);
+        pollenShooter.setShooterPower(shooterPower);
 
         telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
+        telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
+        telemetry.addData("power: ", pollenShooter.getShooterPower());
         telemetry.update();
     }
 

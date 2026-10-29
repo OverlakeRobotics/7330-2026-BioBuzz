@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.code.parts;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class Intake {

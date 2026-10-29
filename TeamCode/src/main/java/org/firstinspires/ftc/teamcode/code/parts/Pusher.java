@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class Pusher {
-    public static double HOME_DEGREES = -65.0;
-    public static double PUSH_DEGREES = 5.0;
+    public static double HOME_DEGREES = -70.0; //-65
+    public static double PUSH_DEGREES = 5.0; //5
     public static double TRAVEL_MS = 200.0;
 
     private final Servo servo;
