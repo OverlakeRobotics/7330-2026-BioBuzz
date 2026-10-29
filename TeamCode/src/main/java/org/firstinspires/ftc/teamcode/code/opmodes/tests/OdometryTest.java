@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.system.OdometryHolonomicDrivetrain;
 @TeleOp(name = "Odometry Test", group = "Test")
 public class OdometryTest extends OpMode {
     // Change to your actual offsets. See GoBildaPinpointDriver.setOffsets() for details on measuring offsets.
-    public double yOffset = -168.0;
+    public double yOffset = -156.0;
     public double xOffset = -84.0;
 
     public static int velocity = 2000;

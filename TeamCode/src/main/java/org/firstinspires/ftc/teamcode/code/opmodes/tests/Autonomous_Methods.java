@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -74,6 +75,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
+@Disabled
 @Autonomous(name="Autonomous Test", group="Linear OpMode")
 public class Autonomous_Methods extends LinearOpMode {
 
