@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class Pusher {
-    public static double HOME_DEGREES = -70.0; //-65
-    public static double PUSH_DEGREES = 5.0; //5
-    public static double TRAVEL_MS = 200.0;
+    public static double HOME_DEGREES = -100.0; //-65
+    public static double PUSH_DEGREES = -5.0; //5
+    public static double TRAVEL_MS = 500.0;
 
     private final Servo servo;
     private final ElapsedTime timer = new ElapsedTime();
@@ -43,5 +43,13 @@ public class Pusher {
         }
 
         previousPressed = pressed;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setPosition(double degrees) {
+        servo.setPosition((degrees + 150.0) / 300.0);
     }
 }

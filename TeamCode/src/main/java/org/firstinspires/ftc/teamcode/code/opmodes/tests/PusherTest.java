@@ -3,15 +3,17 @@ package org.firstinspires.ftc.teamcode.code.opmodes.tests;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import org.firstinspires.ftc.teamcode.code.parts.Pusher;
 
 @TeleOp(name = "Pusher Test", group = "TeleOp")
 public class PusherTest extends OpMode {
     private Pusher pusher;
-    public static double HOME_DEGREES = -65.0;
-    public static double PUSH_DEGREES = 5.0;
-    public static double TRAVEL_MS = 200.0;
+    public static double HOME_DEGREES = -100.0;
+    public static double PUSH_DEGREES = -5.0;
+    public static double TRAVEL_MS = 500.0;
+    public static double servoPosition = -100.0;
 
     @Override
     public void init() {
@@ -21,6 +23,19 @@ public class PusherTest extends OpMode {
 
     @Override
     public void loop() {
-        pusher.update(gamepad1.b);
+        pusher.update(gamepad1.rightTriggerWasPressed());
+
+        if (gamepad1.yWasPressed()) {
+            servoPosition += 5.0;
+            pusher.setPosition(servoPosition);
+        } else if (gamepad1.aWasPressed()) {
+            servoPosition -= 5.0;
+            pusher.setPosition(servoPosition);
+        }
+        telemetry.addData("Servo Position", servoPosition);
+        telemetry.addData("Pusher State", pusher.getState());
+
     }
+
+
 }

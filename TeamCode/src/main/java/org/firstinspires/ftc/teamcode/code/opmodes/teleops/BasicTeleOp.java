@@ -24,14 +24,13 @@ public class BasicTeleOp extends OpMode {
     private OdometryHolonomicDrivetrain driveTrain;
     public static double driveVelocity = 2800;
 
-    public double yOffset = -155;
+    public double yOffset = -156;
     public double xOffset = -84.0;
 
     private Shooter pollenShooter;
     //private Shooter nectarShooter;
 
     public static double shooterVelocity = 0;
-    public static double shooterPower = 0.0;
     public static double TICKS_PER_SEC = (double) 28 /60;
 
     private Pusher pusher;
@@ -65,7 +64,7 @@ public class BasicTeleOp extends OpMode {
     public void loop() {
         driveTrain.updatePosition();
         Pose2D currentPos = driveTrain.getPosition();
-        telemetry.addData("Current Position: ", currentPos);
+        //telemetry.addData("Current Position: ", currentPos);
 
         driveTrain.setVelocityDrive(
                 -gamepad1.left_stick_y * driveVelocity,
@@ -74,34 +73,34 @@ public class BasicTeleOp extends OpMode {
         driveTrain.drive();
 
         if (gamepad1.yWasPressed()) {
-            //shooterVelocity = 200 * TICKS_PER_SEC;
-            shooterPower = 0.50;
+            shooterVelocity = 3000 * TICKS_PER_SEC;
+            //shooterPower = 0.50;
         } else if (gamepad1.xWasPressed()) {
-            //shooterVelocity = 0;
-            shooterPower = 0.0;
+            shooterVelocity = 0;
+            //shooterPower = 0.0;
         } else if (gamepad1.bWasPressed()) {
             //intakePower = 0.5;
-            intakePower = 0.25;
+            intakePower = 0.5;
         } else if (gamepad1.aWasPressed()) {
             intakePower = 0;
         } else if (gamepad1.leftBumperWasPressed()) {
-            //shooterVelocity -= 50 * TICKS_PER_SEC;
-            shooterPower -= 0.01;
+            shooterVelocity -= 100 * TICKS_PER_SEC;
+            //shooterPower -= 0.01;
         } else if (gamepad1.rightBumperWasPressed()) {
-            //shooterVelocity += 50 * TICKS_PER_SEC;
-            shooterPower += 0.01;
+            shooterVelocity += 100 * TICKS_PER_SEC;
+            //shooterPower += 0.01;
         }
 
         pusher.update(gamepad1.rightTriggerWasPressed());
         intake.setIntakePower(intakePower);
 
-        //pollenShooter.setShooterVelocity(shooterVelocity);
-        pollenShooter.setShooterPower(shooterPower);
+        pollenShooter.setShooterVelocity(shooterVelocity);
+        //pollenShooter.setShooterPower(shooterPower);
 
         telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
-        telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
-        telemetry.addData("power: ", pollenShooter.getShooterPower());
+        //telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
+        //telemetry.addData("power: ", pollenShooter.getShooterPower());
         telemetry.update();
     }
 

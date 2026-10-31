@@ -48,13 +48,14 @@ public class ShooterTest extends OpMode {
         driveTrain.drive();
 
         if (gamepad1.yWasPressed()) {
-            shooterVelocity = 200 * TICKS_PER_SEC;
+            shooterVelocity = 100 * TICKS_PER_SEC;
         } else if (gamepad1.xWasPressed()) {
             shooterVelocity = 0;
         } else if (gamepad1.leftBumperWasPressed()) {
             shooterVelocity -= 50 * TICKS_PER_SEC;
         } else if (gamepad1.rightBumperWasPressed()) {
             shooterVelocity += 50 * TICKS_PER_SEC;
+
         } else if (gamepad1.bWasPressed()) {
             shooterPower = 0.25;
         } else if (gamepad1.aWasPressed()) {
@@ -65,8 +66,8 @@ public class ShooterTest extends OpMode {
             shooterPower -= 0.1;
         }
 
-        //pollenShooter.setShooterVelocity(shooterVelocity);
-        pollenShooter.setShooterPower(shooterPower);
+        pollenShooter.setShooterVelocity(shooterVelocity);
+        //pollenShooter.setShooterPower(shooterPower);
 
         telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
