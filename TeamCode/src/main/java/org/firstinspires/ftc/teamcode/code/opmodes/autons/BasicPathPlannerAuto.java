@@ -42,7 +42,9 @@ public class BasicPathPlannerAuto extends OpMode {
     private boolean shooting = false;
     private boolean routeFinished = false;
     private boolean autoStarted = false;
-    private static double SHOOTER_RPM = 3000;
+
+    private final double SHOOTER_RPM = 3200;
+    private final int PUSHER_WAIT_TIME = 3000;
 
     @Override
     public void init() {
@@ -106,13 +108,19 @@ public class BasicPathPlannerAuto extends OpMode {
                 shootTimer.reset();
             }
 
-            if (shotsPushed < 5 && pusher.getState() == 0 && shootTimer.milliseconds() >= 1000) {
+            if (shotsPushed <= 1) {
+                intake.setIntakePower(0);
+            } else if (shotsPushed > 1) {
+                intake.setIntakePower(0.25);
+            }
+
+            if (shotsPushed < 5 && pusher.getState() == 0 && shootTimer.milliseconds() >= PUSHER_WAIT_TIME) {
                 pusher.update(true);
                 shotsPushed++;
             }
 
             if (shotsPushed == 5 && pusher.getState() == 0) {
-                intake.setIntakePower(0);
+                intake.setIntakePower(0.25);
                 shooter.setShooterVelocity(0);
                 shooting = false;
                 if (pausedIndex < positions.length) {
@@ -167,9 +175,11 @@ public class BasicPathPlannerAuto extends OpMode {
                         pausedIndex = Math.max(0, Math.min(currTag.index, positions.length));
                         shotsPushed = 0;
                         shooting = true;
-                        intake.setIntakePower(0);
+                        //intake.setIntakePower(0.25);
                         shooter.setShooterVelocity(SHOOTER_RPM * 28.0 / 60.0);
                         shootTimer.reset();
+                        telemetry.addData("shooter rpm", shooter.getShooterVelocity() * 60 / 28);
+                        telemetry.update();
                         driveTrain.stop();
                     }
                     break;
@@ -179,7 +189,11 @@ public class BasicPathPlannerAuto extends OpMode {
                 default:
                     break;
             }
-            if (shooting || pauseTimeLeft > 0) break;
+            if (shooting || pauseTimeLeft > 0) {
+                telemetry.addData("shooter rpm", shooter.getShooterVelocity() * 60 / 28);
+                telemetry.update();
+            };
+
         }
     }
 
