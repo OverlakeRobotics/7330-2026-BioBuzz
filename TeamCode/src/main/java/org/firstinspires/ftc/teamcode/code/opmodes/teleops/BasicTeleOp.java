@@ -20,13 +20,14 @@ import org.firstinspires.ftc.teamcode.system.OdometryHolonomicDrivetrain;
 @TeleOp(name="Basic TeleOp", group="TeleOp")
 
 public class BasicTeleOp extends OpMode {
-    private OdometryHolonomicDrivetrain driveTrain;
+    protected OdometryHolonomicDrivetrain driveTrain;
     public static double driveVelocity = 2800;
 
     private Shooter pollenShooter;
-    //private Shooter nectarShooter;
+    private Shooter nectarShooter;
 
-    public static double shooterVelocity = 0;
+    public static double pollenShooterVelocity = 0;
+    public static double nectarShooterVelocity = 0;
     public static double TICKS_PER_SEC = (double) 28 /60;
 
     private static Pose2D startPos = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
@@ -34,8 +35,9 @@ public class BasicTeleOp extends OpMode {
     private Pusher pusher;
     private Intake intake;
     private static double intakePower;
-    private boolean shooterEnabled = false;
-    private boolean reverseShooterEnabled = false;
+    private boolean pollenEnabled = false;
+    private boolean reversePollenEnabled = false;
+    private boolean nectarEnabled = false;
     private boolean intakeEnabled = false;
 
 
@@ -50,10 +52,10 @@ public class BasicTeleOp extends OpMode {
         );
 
         Pose2D autoEndPos = AutoPoseHandoff.consume();
-        driveTrain.setPosition(autoEndPos != null ? autoEndPos : startPos);
+        driveTrain.setPosition(autoEndPos != null ? autoEndPos : getDefaultStartPosition());
 
-        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"));
-        //nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"));
+        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"), DcMotorEx.Direction.REVERSE);
+        nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"), DcMotorEx.Direction.FORWARD);
 
         pusher = new Pusher(hardwareMap.get(Servo.class, "pusher"));
         intake = new Intake(hardwareMap.get(DcMotorEx.class, "intake"));
@@ -61,62 +63,103 @@ public class BasicTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        boolean shooterTogglePressed = gamepad1.yWasPressed();
-        boolean intakeTogglePressed = gamepad1.bWasPressed();
-        boolean shooterSlowerPressed = gamepad1.rightBumperWasPressed();
-        boolean shooterFasterPressed = gamepad1.leftBumperWasPressed();
-        boolean pusherPressed = gamepad1.rightTriggerWasPressed();
-        boolean shooterReverseTogglePressed = gamepad1.aWasPressed();
+        updateDrive();
+        updateMechanisms();
+        addDriveTelemetry();
+        addMechanismTelemetry();
+        telemetry.update();
+    }
 
+    protected Pose2D getDefaultStartPosition() {
+        return startPos;
+    }
+
+    protected void updateDrive() {
         driveTrain.updatePosition();
-        Pose2D currentPos = driveTrain.getPosition();
-
         driveTrain.setVelocityDrive(
                 -gamepad1.left_stick_y * driveVelocity,
                 -gamepad1.left_stick_x * driveVelocity,
                 -gamepad1.right_stick_x * driveVelocity);
         driveTrain.drive();
+    }
 
-        if (shooterTogglePressed) {
-            shooterEnabled = !shooterEnabled;
-            reverseShooterEnabled = false;
-            if (shooterEnabled) {
-                shooterVelocity = 3000 * TICKS_PER_SEC;
+    protected void updateMechanisms() {
+        boolean pollenTogglePressed = gamepad1.yWasPressed();
+        boolean intakeTogglePressed = gamepad1.bWasPressed();
+        boolean pollenReverseTogglePressed = gamepad1.aWasPressed();
+        boolean nectarTogglePressed = isNectarTogglePressed();
+        boolean pusherPressed = gamepad1.rightTriggerWasPressed();
+
+        if (pollenTogglePressed) {
+            pollenEnabled = !pollenEnabled;
+            reversePollenEnabled = false;
+            if (pollenEnabled) {
+                pollenShooterVelocity = 3000 * TICKS_PER_SEC;
             }
         }
-        if (shooterReverseTogglePressed) {
-            reverseShooterEnabled = !reverseShooterEnabled;
-            shooterEnabled = false;
-            if (reverseShooterEnabled) {
-                shooterVelocity = -200 * TICKS_PER_SEC;
+        if (pollenReverseTogglePressed) {
+            reversePollenEnabled = !reversePollenEnabled;
+            pollenEnabled = false;
+            if (reversePollenEnabled) {
+                pollenShooterVelocity = -200 * TICKS_PER_SEC;
             }
         }
         if (intakeTogglePressed) {
             intakeEnabled = !intakeEnabled;
             intakePower = intakeEnabled ? 0.5 : 0;
         }
-
-        if (shooterSlowerPressed) {
-            shooterVelocity -= 100 * TICKS_PER_SEC;
-        } else if (shooterFasterPressed) {
-            shooterVelocity += 100 * TICKS_PER_SEC;
+        if (nectarTogglePressed) {
+            nectarEnabled = !nectarEnabled;
+            nectarShooterVelocity = nectarEnabled ? 4100 * TICKS_PER_SEC : 0;
         }
+
+        updateAdditionalShooterControls();
 
         pusher.update(pusherPressed);
         intake.setIntakePower(intakePower);
 
-        pollenShooter.setShooterVelocity(shooterEnabled ? shooterVelocity : 0);
-        //pollenShooter.setShooterPower(shooterPower);
+        nectarShooter.setShooterVelocity(nectarEnabled ? nectarShooterVelocity : 0);
+        pollenShooter.setShooterVelocity(pollenEnabled ? pollenShooterVelocity : 0);
+    }
 
-        telemetry.addLine("shooter: y | right/left bumper");
+    protected boolean isNectarTogglePressed() {
+        return gamepad1.xWasPressed();
+    }
+
+    protected String getNectarToggleControlName() {
+        return "x";
+    }
+
+    protected void updateAdditionalShooterControls() {
+        // Subclasses can add shooter controls without duplicating mechanism setup.
+    }
+
+    protected void addDriveTelemetry() {
+        // Subclasses can report drive-specific status here.
+    }
+
+    protected void addMechanismTelemetry() {
+        telemetry.addLine("pollen shooter: y");
+        telemetry.addLine("reverse pollen shooter: a");
+        telemetry.addLine("nectar shooter: " + getNectarToggleControlName());
         telemetry.addLine("intake: b");
         telemetry.addLine("pusher: right trigger");
         telemetry.addLine();
-
-        telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
-        telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
         telemetry.addData("intake:", intakeEnabled ? "on" : "off");
-        telemetry.update();
+        telemetry.addLine("----pollen----");
+        telemetry.addData("target rpm: ", pollenShooterVelocity * 60 / 28);
+        telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
+        telemetry.addLine("----nectar----");
+        telemetry.addData("target rpm: ", nectarShooterVelocity * 60 / 28);
+        telemetry.addData("actual rpm: ", nectarShooter.getShooterVelocity() * 60 / 28);
+    }
+
+    @Override
+    public void stop() {
+        pollenShooter.setShooterVelocity(0);
+        nectarShooter.setShooterVelocity(0);
+        intake.setIntakePower(0);
+        pusher.home();
     }
 
 }

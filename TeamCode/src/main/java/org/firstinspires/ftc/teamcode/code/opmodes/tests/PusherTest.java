@@ -35,7 +35,11 @@ public class PusherTest extends OpMode {
         telemetry.addData("Servo Position", servoPosition);
         telemetry.addData("Pusher State", pusher.getState());
 
+        telemetry.update();
     }
 
-
+    @Override
+    public void stop() {
+        pusher.home();
+    }
 }

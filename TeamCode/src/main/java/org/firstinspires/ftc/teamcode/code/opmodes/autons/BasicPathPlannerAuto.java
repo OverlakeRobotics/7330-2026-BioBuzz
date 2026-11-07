@@ -57,7 +57,8 @@ public class BasicPathPlannerAuto extends OpMode {
         );
 
         intake = new Intake(hardwareMap.get(DcMotorEx.class, "intake"));
-        shooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"));
+        shooter = new Shooter(
+                hardwareMap.get(DcMotorEx.class, "pollenShooter"), DcMotorEx.Direction.REVERSE);
         pusher = new Pusher(hardwareMap.get(Servo.class, "pusher"));
 
         PathServer.startServer();

@@ -18,7 +18,7 @@ public class ShooterTest extends OpMode {
     public static double driveVelocity = 2800;
 
     private Shooter pollenShooter;
-    //private Shooter nectarShooter;
+    private Shooter nectarShooter;
 
     public static double shooterVelocity = 0;
     public static double TICKS_PER_SEC = (double) 28 /60;
@@ -34,8 +34,8 @@ public class ShooterTest extends OpMode {
                 hardwareMap.get(DcMotorEx.class, "frontRight")
         );
 
-        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"));
-        //nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"));
+        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"), DcMotorEx.Direction.REVERSE);
+        nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"), DcMotorEx.Direction.FORWARD);
 
     }
 
@@ -48,13 +48,13 @@ public class ShooterTest extends OpMode {
         driveTrain.drive();
 
         if (gamepad1.yWasPressed()) {
-            shooterVelocity = 100 * TICKS_PER_SEC;
+            shooterVelocity = 5000 * TICKS_PER_SEC;
         } else if (gamepad1.xWasPressed()) {
             shooterVelocity = 0;
         } else if (gamepad1.leftBumperWasPressed()) {
-            shooterVelocity -= 50 * TICKS_PER_SEC;
+            shooterVelocity -= 200 * TICKS_PER_SEC;
         } else if (gamepad1.rightBumperWasPressed()) {
-            shooterVelocity += 50 * TICKS_PER_SEC;
+            shooterVelocity += 200 * TICKS_PER_SEC;
 
         } else if (gamepad1.bWasPressed()) {
             shooterPower = 0.25;
@@ -67,13 +67,17 @@ public class ShooterTest extends OpMode {
         }
 
         pollenShooter.setShooterVelocity(shooterVelocity);
-        //pollenShooter.setShooterPower(shooterPower);
+        nectarShooter.setShooterVelocity(shooterVelocity);
 
         telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
-        telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
-        telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
-        telemetry.addData("power: ", pollenShooter.getShooterPower());
+        telemetry.addData("actual rpm: ", nectarShooter.getShooterVelocity() * 60 / 28);
+        telemetry.addData("encoder position: ", nectarShooter.getCurrentPosition());
         telemetry.update();
     }
 
+    @Override
+    public void stop() {
+        pollenShooter.setShooterVelocity(0);
+        nectarShooter.setShooterVelocity(0);
+    }
 }

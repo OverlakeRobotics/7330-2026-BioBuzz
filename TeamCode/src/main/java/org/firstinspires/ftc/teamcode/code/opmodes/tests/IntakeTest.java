@@ -65,4 +65,9 @@ public class IntakeTest extends OpMode {
 
     }
 
+    @Override
+    public void stop() {
+        intake.setIntakePower(0);
+    }
+
 }

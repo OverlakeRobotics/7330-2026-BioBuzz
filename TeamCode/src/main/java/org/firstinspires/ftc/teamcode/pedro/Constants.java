@@ -11,7 +11,7 @@ import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -32,10 +32,10 @@ public class Constants {
                 c.frontRightName.set("frontRight");
                 c.backRightName.set("backRight");
 
-                c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
-                c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
-                c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
-                c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
+                c.frontLeftDirection.set(DcMotorEx.Direction.REVERSE);
+                c.backLeftDirection.set(DcMotorEx.Direction.REVERSE);
+                c.frontRightDirection.set(DcMotorEx.Direction.FORWARD);
+                c.backRightDirection.set(DcMotorEx.Direction.FORWARD);
 
                 c.manualBrakeMode.set(true);
             }
