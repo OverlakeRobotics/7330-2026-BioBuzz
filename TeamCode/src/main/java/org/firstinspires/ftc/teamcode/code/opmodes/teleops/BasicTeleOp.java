@@ -40,6 +40,15 @@ public class BasicTeleOp extends OpMode {
     private boolean nectarEnabled = false;
     private boolean intakeEnabled = false;
 
+    private final double pollenP = 1.5;
+    private final double pollenI = 0.0;
+    private final double pollenD = 0.0;
+    private final double pollenF = 12.0;
+    private final double nectarP = 1.5;
+    private final double nectarI = 0.0;
+    private final double nectarD = 0.0;
+    private final double nectarF = 12.0;
+
 
     @Override
     public void init() {
@@ -56,7 +65,8 @@ public class BasicTeleOp extends OpMode {
 
         pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"), DcMotorEx.Direction.REVERSE);
         nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"), DcMotorEx.Direction.FORWARD);
-
+        pollenShooter.setShooterPIDFCoefficients(pollenP, pollenI, pollenD, pollenF);
+        nectarShooter.setShooterPIDFCoefficients(nectarP, nectarI, nectarD, nectarF);
         pusher = new Pusher(hardwareMap.get(Servo.class, "pusher"));
         intake = new Intake(hardwareMap.get(DcMotorEx.class, "intake"));
     }

@@ -20,6 +20,10 @@ public class Shooter {
         this.shooterMotor.setVelocity(clamped);
     }
 
+    public void setShooterPIDFCoefficients(double p, double i, double d, double f) {
+        shooterMotor.setVelocityPIDFCoefficients(p, i, d, f);
+    }
+
     public double getShooterVelocity() {
         return shooterMotor.getVelocity();
     }
