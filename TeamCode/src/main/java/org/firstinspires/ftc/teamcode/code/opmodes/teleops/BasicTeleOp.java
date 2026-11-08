@@ -97,7 +97,7 @@ public class BasicTeleOp extends OpMode {
         boolean pollenTogglePressed = gamepad1.yWasPressed();
         boolean intakeTogglePressed = gamepad1.bWasPressed();
         boolean pollenReverseTogglePressed = gamepad1.aWasPressed();
-        boolean nectarTogglePressed = isNectarTogglePressed();
+        boolean nectarTogglePressed = gamepad1.xWasPressed();
         boolean pusherPressed = gamepad1.rightTriggerWasPressed();
 
         if (pollenTogglePressed) {
@@ -123,8 +123,6 @@ public class BasicTeleOp extends OpMode {
             nectarShooterVelocity = nectarEnabled ? 4100 * TICKS_PER_SEC : 0;
         }
 
-        updateAdditionalShooterControls();
-
         pusher.update(pusherPressed);
         intake.setIntakePower(intakePower);
 
@@ -132,26 +130,14 @@ public class BasicTeleOp extends OpMode {
         pollenShooter.setShooterVelocity(pollenEnabled ? pollenShooterVelocity : 0);
     }
 
-    protected boolean isNectarTogglePressed() {
-        return gamepad1.xWasPressed();
-    }
-
-    protected String getNectarToggleControlName() {
-        return "x";
-    }
-
-    protected void updateAdditionalShooterControls() {
-        // Subclasses can add shooter controls without duplicating mechanism setup.
-    }
-
     protected void addDriveTelemetry() {
-        // Subclasses can report drive-specific status here.
+
     }
 
     protected void addMechanismTelemetry() {
         telemetry.addLine("pollen shooter: y");
         telemetry.addLine("reverse pollen shooter: a");
-        telemetry.addLine("nectar shooter: " + getNectarToggleControlName());
+        telemetry.addLine("nectar shooter: x");
         telemetry.addLine("intake: b");
         telemetry.addLine("pusher: right trigger");
         telemetry.addLine();

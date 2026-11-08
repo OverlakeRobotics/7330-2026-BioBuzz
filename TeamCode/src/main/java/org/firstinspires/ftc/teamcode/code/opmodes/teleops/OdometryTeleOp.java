@@ -10,13 +10,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 @Config
 @TeleOp(name = "Odemetry TeleOp", group = "TeleOp")
 public class OdometryTeleOp extends BasicTeleOp {
-    private static final Pose2D START_POSITION =
-            new Pose2D(DistanceUnit.INCH, -63, 63, AngleUnit.DEGREES, 0);
+    private static final Pose2D START_POSITION = new Pose2D(DistanceUnit.INCH, -63, 63, AngleUnit.DEGREES, 0);
 
     private final Pose2D[] presets = {
             new Pose2D(DistanceUnit.INCH, -63, 15, AngleUnit.DEGREES, 0),
             new Pose2D(DistanceUnit.INCH, 63, 15, AngleUnit.DEGREES, 180),
-            new Pose2D(DistanceUnit.INCH, 21, 63, AngleUnit.DEGREES, -90)
+            new Pose2D(DistanceUnit.INCH, 21, 63, AngleUnit.DEGREES, 90)
     };
 
     private int poseIndex = 0;
@@ -38,7 +37,7 @@ public class OdometryTeleOp extends BasicTeleOp {
                 poseIndex = Math.min(presets.length - 1, poseIndex + 1);
             }
 
-            if (gamepad1.xWasPressed()) {
+            if (gamepad1.startWasPressed()) {
                 driveTrain.setVelocity((int) driveVelocity);
                 driveTrain.setPositionDrive(presets[poseIndex]);
                 drivingToPose = true;
@@ -68,31 +67,11 @@ public class OdometryTeleOp extends BasicTeleOp {
     }
 
     @Override
-    protected boolean isNectarTogglePressed() {
-        // X starts a preset drive here, so D-pad up toggles the nectar shooter.
-        return gamepad1.dpadUpWasPressed();
-    }
-
-    @Override
-    protected String getNectarToggleControlName() {
-        return "d-pad up";
-    }
-
-    @Override
-    protected void updateAdditionalShooterControls() {
-        if (gamepad1.rightBumperWasPressed()) {
-            pollenShooterVelocity -= 100 * TICKS_PER_SEC;
-        } else if (gamepad1.leftBumperWasPressed()) {
-            pollenShooterVelocity += 100 * TICKS_PER_SEC;
-        }
-    }
-
-    @Override
     protected void addDriveTelemetry() {
         Pose2D currentPos = driveTrain.getPosition();
         Pose2D selectedPose = presets[poseIndex];
 
-        telemetry.addLine("D-pad left/right: select pose | X: drive to pose | sticks: manual drive/cancel");
+        telemetry.addLine("d-pad left/right: select pose | start: drive to pose | sticks: manual drive/cancel");
         telemetry.addData("selected pose", "%d / %d", poseIndex + 1, presets.length);
         telemetry.addData("target pose", "X: %.1f, Y: %.1f, H: %.1f",
                 selectedPose.getX(DistanceUnit.INCH),
