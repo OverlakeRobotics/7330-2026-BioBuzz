@@ -6,8 +6,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.code.parts.*;
 import org.firstinspires.ftc.teamcode.system.BasicHolonomicDrivetrain;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Locale;
 
 
 @Config
@@ -32,10 +39,15 @@ public class ShooterTest extends OpMode {
     public static double PUSHER_STABLE_TIME_MS = 250.0;
 
     private Pusher pusher;
-    private boolean pusherRequested = false;
     private boolean pollenWasAtTarget = false;
     private boolean pollenReady = false;
     private final ElapsedTime pollenAtTargetTimer = new ElapsedTime();
+    private final ElapsedTime recoveryTimer = new ElapsedTime();
+    private boolean timing = false;
+    private double lastRecoveryTime = -1;
+    private boolean spinUpTiming = false;
+    private final ElapsedTime spinUpTimer = new ElapsedTime();
+    private double lastSpinUpTime = -1;
 
     private double appliedShooterP = Double.NaN;
     private double appliedShooterI = Double.NaN;
@@ -70,6 +82,10 @@ public class ShooterTest extends OpMode {
         driveTrain.drive();
 
         if (gamepad1.yWasPressed()) {
+            if (pollenShooterVelocity == 0) {
+                spinUpTiming = true;
+                spinUpTimer.reset();
+            }
             pollenShooterVelocity = 3000 * TICKS_PER_SEC;
         } else if (gamepad1.xWasPressed()) {
             pollenShooterVelocity = 0;
@@ -108,20 +124,36 @@ public class ShooterTest extends OpMode {
         pollenShooter.setShooterVelocity(pollenShooterVelocity);
         nectarShooter.setShooterVelocity(nectarShooterVelocity);
 
-        pusher.update(gamepad1.startWasPressed() && isPollenAtTargetSpeed());
+        boolean pollenAtSpeed = isPollenAtTargetSpeed();
+        boolean shotStarted = gamepad1.startWasPressed()
+                && pollenAtSpeed
+                && pusher.getState() == 0;
+        pusher.update(shotStarted);
 
-        telemetry.addData("pollen ready", pollenReady);
-        telemetry.addData("pusher queued", pusherRequested);
-        telemetry.addData("pusher state", pusher.getState());
+        if (shotStarted) {
+            recoveryTimer.reset();
+            timing = true;
+            pollenWasAtTarget = false;
+            pollenReady = false;
+        }
+        if (timing && pollenReady) {
+            lastRecoveryTime = recoveryTimer.milliseconds();
+            timing = false;
+        }
+        if (spinUpTiming && pollenAtSpeed) {
+            lastSpinUpTime = spinUpTimer.milliseconds();
+            spinUpTiming = false;
+        }
+
+        telemetry.addData("last recovery ms: ", lastRecoveryTime < 0 ? "--" : String.format("%.0f", lastRecoveryTime));
+        telemetry.addData("last speed up ms: ", lastSpinUpTime < 0 ? "--" : String.format("%.0f", lastSpinUpTime));
         telemetry.addData("PIDF", "P %.3f I %.3f D %.3f F %.3f", SHOOTER_P, SHOOTER_I, SHOOTER_D, SHOOTER_F);
         telemetry.addLine("----pollen shooter----");
         telemetry.addData("target rpm: ", pollenShooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
-        telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
         telemetry.addLine("----nectar shooter----");
         telemetry.addData("target rpm: ", nectarShooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", nectarShooter.getShooterVelocity() * 60 / 28);
-        telemetry.addData("encoder position: ", nectarShooter.getCurrentPosition());
 
         telemetry.update();
     }
