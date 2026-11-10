@@ -11,11 +11,8 @@ public final class AutoPoseHandoff {
 
     public static void save(Pose2D pose) {
         savedPose = new Pose2D(
-                DistanceUnit.INCH,
-                pose.getX(DistanceUnit.INCH),
-                pose.getY(DistanceUnit.INCH),
-                AngleUnit.DEGREES,
-                pose.getHeading(AngleUnit.DEGREES)
+                DistanceUnit.INCH, pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),
+                AngleUnit.DEGREES, pose.getHeading(AngleUnit.DEGREES)
         );
     }
 
