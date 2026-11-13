@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 // Turns a PathRoute from the Overlake Robotics Path Planner into Pedro Pathing paths.
 //
 // The route is cut into "chunks". A chunk is one compound Pedro Path made of one sub-path per
