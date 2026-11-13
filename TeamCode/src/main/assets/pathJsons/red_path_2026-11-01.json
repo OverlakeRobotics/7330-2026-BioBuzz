@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "createdAt": "2026-11-01T21:29:16.706Z",
+  "alliance": "red",
+  "start": {
+    "x": -63,
+    "y": 15,
+    "h": 0
+  },
+  "points": [
+    {
+      "x": 9,
+      "y": 51,
+      "h": 0
+    },
+    {
+      "x": 45,
+      "y": 54,
+      "h": 0
+    }
+  ],
+  "segments": [
+    {
+      "type": "line",
+      "end": {
+        "x": 9,
+        "y": 51,
+        "h": 0
+      },
+      "samples": [
+        {
+          "x": 9,
+          "y": 51,
+          "h": 0
+        }
+      ]
+    },
+    {
+      "type": "line",
+      "end": {
+        "x": 45,
+        "y": 54,
+        "h": 0
+      },
+      "samples": [
+        {
+          "x": 45,
+          "y": 54,
+          "h": 0
+        }
+      ]
+    }
+  ],
+  "headingMode": "straight",
+  "endHeading": 0,
+  "velocity": 50,
+  "maxAccel": 40,
+  "tolerance": 5,
+  "snapInches": 3,
+  "robot": {
+    "length": 18,
+    "width": 18
+  },
+  "tags": [
+    {
+      "index": 0,
+      "name": "shoot",
+      "value": 5
+    },
+    {
+      "index": 1,
+      "name": "reset",
+      "value": 0
+    },
+    {
+      "index": 2,
+      "name": "reset",
+      "value": 0
+    }
+  ],
+  "globals": [],
+  "tagBindings": []
+}

@@ -12,7 +12,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.List;
@@ -192,7 +191,7 @@ public class ThreeWheelIMUTuner extends Procedure {
             DcMotorEx motor = map.get(DcMotorEx.class, name);
             motor.setPower(0);
             motor.setDirection(name.equals("lf") || name.equals("lr")
-                    ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+                    ? DcMotorEx.Direction.REVERSE : DcMotorEx.Direction.FORWARD);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
         return new ThreeWheelIMULocalizer(map, config);

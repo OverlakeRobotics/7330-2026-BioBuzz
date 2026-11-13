@@ -44,10 +44,10 @@ public class MecanumTuner extends Procedure {
                 "    c.frontRightName.set(\"" + frontRightName.get() + "\");\n" +
                 "    c.backLeftName.set(\"" + backLeftName.get() + "\");\n" +
                 "    c.backRightName.set(\"" + backRightName.get() + "\");\n" +
-                "    c.frontLeftDirection.set(DcMotorSimple.Direction." + frontLeftDirection + ");\n" +
-                "    c.frontRightDirection.set(DcMotorSimple.Direction." + frontRightDirection + ");\n" +
-                "    c.backLeftDirection.set(DcMotorSimple.Direction." + backLeftDirection + ");\n" +
-                "    c.backRightDirection.set(DcMotorSimple.Direction." + backRightDirection + ");\n" +
+                "    c.frontLeftDirection.set(DcMotorEx.Direction." + frontLeftDirection + ");\n" +
+                "    c.frontRightDirection.set(DcMotorEx.Direction." + frontRightDirection + ");\n" +
+                "    c.backLeftDirection.set(DcMotorEx.Direction." + backLeftDirection + ");\n" +
+                "    c.backRightDirection.set(DcMotorEx.Direction." + backRightDirection + ");\n" +
                 "});");
     }
 

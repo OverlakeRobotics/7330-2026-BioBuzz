@@ -10,10 +10,9 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.code.helpers.AutoPoseHandoff;
 import org.firstinspires.ftc.teamcode.code.parts.*;
 import org.firstinspires.ftc.teamcode.components.GoBildaPinpointOdometry;
-import org.firstinspires.ftc.teamcode.system.BasicHolonomicDrivetrain;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.system.OdometryHolonomicDrivetrain;
 
 
@@ -21,87 +20,142 @@ import org.firstinspires.ftc.teamcode.system.OdometryHolonomicDrivetrain;
 @TeleOp(name="Basic TeleOp", group="TeleOp")
 
 public class BasicTeleOp extends OpMode {
-    private OdometryHolonomicDrivetrain driveTrain;
+    protected OdometryHolonomicDrivetrain driveTrain;
     public static double driveVelocity = 2800;
 
-    public double yOffset = -156;
-    public double xOffset = -84.0;
-
     private Shooter pollenShooter;
-    //private Shooter nectarShooter;
+    private Shooter nectarShooter;
 
-    public static double shooterVelocity = 0;
+    public static double pollenShooterVelocity = 0;
+    public static double nectarShooterVelocity = 0;
     public static double TICKS_PER_SEC = (double) 28 /60;
+
+    private static Pose2D startPos = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
 
     private Pusher pusher;
     private Intake intake;
     private static double intakePower;
+    private boolean pollenEnabled = false;
+    private boolean reversePollenEnabled = false;
+    private boolean nectarEnabled = false;
+    private boolean intakeEnabled = false;
 
-    private static Pose2D startPos = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+    private final double pollenP = 1.5;
+    private final double pollenI = 0.0;
+    private final double pollenD = 0.0;
+    private final double pollenF = 12.0;
+    private final double nectarP = 1.5;
+    private final double nectarI = 0.0;
+    private final double nectarD = 0.0;
+    private final double nectarF = 12.0;
+
 
     @Override
     public void init() {
-        GoBildaPinpointDriver pinpointDriver = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpointDriver.setOffsets(xOffset, yOffset, DistanceUnit.MM);
         driveTrain = new OdometryHolonomicDrivetrain(
                 hardwareMap.get(DcMotorEx.class, "backLeft"),
                 hardwareMap.get(DcMotorEx.class, "backRight"),
                 hardwareMap.get(DcMotorEx.class, "frontLeft"),
                 hardwareMap.get(DcMotorEx.class, "frontRight"),
-                new GoBildaPinpointOdometry(pinpointDriver)
+                new GoBildaPinpointOdometry(hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint"))
         );
 
-        driveTrain.setPosition(startPos);
+        Pose2D autoEndPos = AutoPoseHandoff.consume();
+        driveTrain.setPosition(autoEndPos != null ? autoEndPos : getDefaultStartPosition());
 
-        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"));
-        //nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"));
-
+        pollenShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "pollenShooter"), DcMotorEx.Direction.REVERSE);
+        nectarShooter = new Shooter(hardwareMap.get(DcMotorEx.class, "nectarShooter"), DcMotorEx.Direction.FORWARD);
+        pollenShooter.setShooterPIDFCoefficients(pollenP, pollenI, pollenD, pollenF);
+        nectarShooter.setShooterPIDFCoefficients(nectarP, nectarI, nectarD, nectarF);
         pusher = new Pusher(hardwareMap.get(Servo.class, "pusher"));
         intake = new Intake(hardwareMap.get(DcMotorEx.class, "intake"));
     }
 
     @Override
     public void loop() {
-        driveTrain.updatePosition();
-        Pose2D currentPos = driveTrain.getPosition();
-        //telemetry.addData("Current Position: ", currentPos);
+        updateDrive();
+        updateMechanisms();
+        addDriveTelemetry();
+        addMechanismTelemetry();
+        telemetry.update();
+    }
 
+    protected Pose2D getDefaultStartPosition() {
+        return startPos;
+    }
+
+    protected void updateDrive() {
+        driveTrain.updatePosition();
         driveTrain.setVelocityDrive(
                 -gamepad1.left_stick_y * driveVelocity,
                 -gamepad1.left_stick_x * driveVelocity,
                 -gamepad1.right_stick_x * driveVelocity);
         driveTrain.drive();
+    }
 
-        if (gamepad1.yWasPressed()) {
-            shooterVelocity = 3000 * TICKS_PER_SEC;
-            //shooterPower = 0.50;
-        } else if (gamepad1.xWasPressed()) {
-            shooterVelocity = 0;
-            //shooterPower = 0.0;
-        } else if (gamepad1.bWasPressed()) {
-            //intakePower = 0.5;
-            intakePower = 0.5;
-        } else if (gamepad1.aWasPressed()) {
-            intakePower = 0;
-        } else if (gamepad1.leftBumperWasPressed()) {
-            shooterVelocity -= 100 * TICKS_PER_SEC;
-            //shooterPower -= 0.01;
-        } else if (gamepad1.rightBumperWasPressed()) {
-            shooterVelocity += 100 * TICKS_PER_SEC;
-            //shooterPower += 0.01;
+    protected void updateMechanisms() {
+        boolean pollenTogglePressed = gamepad1.yWasPressed();
+        boolean intakeTogglePressed = gamepad1.bWasPressed();
+        boolean pollenReverseTogglePressed = gamepad1.aWasPressed();
+        boolean nectarTogglePressed = gamepad1.xWasPressed();
+        boolean pusherPressed = gamepad1.rightTriggerWasPressed();
+
+        if (pollenTogglePressed) {
+            pollenEnabled = !pollenEnabled;
+            reversePollenEnabled = false;
+            if (pollenEnabled) {
+                pollenShooterVelocity = 3000 * TICKS_PER_SEC;
+            }
+        }
+        if (pollenReverseTogglePressed) {
+            reversePollenEnabled = !reversePollenEnabled;
+            pollenEnabled = false;
+            if (reversePollenEnabled) {
+                pollenShooterVelocity = -200 * TICKS_PER_SEC;
+            }
+        }
+        if (intakeTogglePressed) {
+            intakeEnabled = !intakeEnabled;
+            intakePower = intakeEnabled ? 0.5 : 0;
+        }
+        if (nectarTogglePressed) {
+            nectarEnabled = !nectarEnabled;
+            nectarShooterVelocity = nectarEnabled ? 4100 * TICKS_PER_SEC : 0;
         }
 
-        pusher.update(gamepad1.rightTriggerWasPressed());
+        pusher.update(pusherPressed);
         intake.setIntakePower(intakePower);
 
-        pollenShooter.setShooterVelocity(shooterVelocity);
-        //pollenShooter.setShooterPower(shooterPower);
+        nectarShooter.setShooterVelocity(nectarEnabled ? nectarShooterVelocity : 0);
+        pollenShooter.setShooterVelocity(pollenEnabled ? pollenShooterVelocity : 0);
+    }
 
-        telemetry.addData("target rpm: ", shooterVelocity * 60 / 28);
+    protected void addDriveTelemetry() {
+
+    }
+
+    protected void addMechanismTelemetry() {
+        telemetry.addLine("pollen shooter: y");
+        telemetry.addLine("reverse pollen shooter: a");
+        telemetry.addLine("nectar shooter: x");
+        telemetry.addLine("intake: b");
+        telemetry.addLine("pusher: right trigger");
+        telemetry.addLine();
+        telemetry.addData("intake:", intakeEnabled ? "on" : "off");
+        telemetry.addLine("----pollen----");
+        telemetry.addData("target rpm: ", pollenShooterVelocity * 60 / 28);
         telemetry.addData("actual rpm: ", pollenShooter.getShooterVelocity() * 60 / 28);
-        //telemetry.addData("encoder position: ", pollenShooter.getCurrentPosition());
-        //telemetry.addData("power: ", pollenShooter.getShooterPower());
-        telemetry.update();
+        telemetry.addLine("----nectar----");
+        telemetry.addData("target rpm: ", nectarShooterVelocity * 60 / 28);
+        telemetry.addData("actual rpm: ", nectarShooter.getShooterVelocity() * 60 / 28);
+    }
+
+    @Override
+    public void stop() {
+        pollenShooter.setShooterVelocity(0);
+        nectarShooter.setShooterVelocity(0);
+        intake.setIntakePower(0);
+        pusher.home();
     }
 
 }
